@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Shopping List with Chart</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+
+<body>
+    <input type="text" id="itemName" placeholder="Enter item" />
+    <input type="text" id="itemQty" placeholder="Enter quantity" />
+    <button id="addItem">Add Item</button>
+
+    <table id="shoppingList">
+        <thead>
+            <tr>
+                <th>Item</th>
+                <th>Quantity</th>
+            </tr>
+        </thead>
+        <tbody>
+        </tbody>
+    </table>
+
+    <canvas id="itemChart" width="400" height="400"></canvas>
+
+    <script>
+        const itemData = {};
+        const ctx = document.getElementById('itemChart').getContext('2d');
+
+
+        const chart = new Chart(ctx, {
+            type: 'pie',
+            data: {
+                labels: [],
+                datasets: [{
+                    label: 'Item Quantities',
+                    data: [],
+                    backgroundColor: [
+                        'red', 'blue', 'green', 'orange', 'purple', 'yellow', 'cyan', 'magenta'
+                    ],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        position: 'bottom'
+                    }
+                }
+            }
+        });
+
+
+        document.getElementById('addItem').addEventListener('click', function() {
+            const itemName = document.getElementById('itemName').value.trim();
+            const itemQty = parseInt(document.getElementById('itemQty').value.trim());
+
+            if (itemName !== '' && !isNaN(itemQty)) {
+
+                const tableBody = document.getElementById('shoppingList').querySelector('tbody');
+                const newRow = document.createElement('tr');
+
+                const itemCell = document.createElement('td');
+                itemCell.textContent = itemName;
+
+                const qtyCell = document.createElement('td');
+                qtyCell.textContent = itemQty;
+
+                newRow.appendChild(itemCell);
+                newRow.appendChild(qtyCell);
+                tableBody.appendChild(newRow);
+
+
+                if (itemData[itemName]) {
+                    itemData[itemName] += itemQty;
+                } else {
+                    itemData[itemName] = itemQty;
+                }
+
+                updateChart();
+
+                // Clear input fields
+                document.getElementById('itemName').value = '';
+                document.getElementById('itemQty').value = '';
+            } else {
+                alert("Please enter a valid item and quantity.");
+            }
+        });
+
+        function updateChart() {
+            chart.data.labels = Object.keys(itemData);
+            chart.data.datasets[0].data = Object.values(itemData);
+            chart.update();
+        }
+    </script>
+</body>
+
+</html>
